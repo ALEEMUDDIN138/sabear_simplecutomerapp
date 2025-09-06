@@ -30,7 +30,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarqube-server') {
                     sh """
-                        ${SCANNER_HOME}/opt/sonar_scanner//bin/sonar-scanner-x \
+                        ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=Ncodeit \
                         -Dsonar.projectName=Ncodeit \
                         -Dsonar.projectVersion=2.0 \
