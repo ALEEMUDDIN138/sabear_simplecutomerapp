@@ -19,40 +19,36 @@ pipeline {
                 git 'https://github.com/ALEEMUDDIN138/sabear_simplecutomerapp.git'
             }
         }
-
         stage('Build') {
-            steps {
-                sh 'mvn -Dmaven.test.failure.ignore=true clean install'
-            }
-        }
+    steps {
+        sh 'mvn -Dmaven.test.failure.ignore=true clean install'
+    }
+}
+
 
         stage("SonarCloud") {
             steps {
                 withSonarQubeEnv('sonarqube-server') {
-                    sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner \
+                    sh '''$SCANNER_HOME/bin/sonar-scanner \
                         -Dsonar.projectKey=Ncodeit \
                         -Dsonar.projectName=Ncodeit \
                         -Dsonar.projectVersion=2.0 \
-                        -Dsonar.sources=src \
-                        -Dsonar.binaries=target/classes \
+                        -Dsonar.sources=/var/lib/jenkins/workspace/$JOB_NAME/src/ \
+                        -Dsonar.binaries=target/classes/com/visualpathit/account/controller/ \
                         -Dsonar.junit.reportsPath=target/surefire-reports \
                         -Dsonar.jacoco.reportPath=target/jacoco.exec \
-                        -Dsonar.java.binaries=target/classes
-                    """
+                        -Dsonar.java.binaries=src/com/room/sample '''
                 }
             }
         }
-
         stage("publish to nexus") {
             steps {
                 script {
-                    def pom = readMavenPom file: "pom.xml"
-                    def filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
+                    pom = readMavenPom file: "pom.xml"
+                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
                     echo "${filesByGlob[0].name} ${filesByGlob[0].path}"
-                    def artifactPath = filesByGlob[0].path
-                    def artifactExists = fileExists artifactPath
-
+                    artifactPath = filesByGlob[0].path
+                    artifactExists = fileExists artifactPath
                     if (artifactExists) {
                         nexusArtifactUploader(
                             nexusVersion: NEXUS_VERSION,
@@ -73,5 +69,3 @@ pipeline {
                 }
             }
         }
-    } // closes stages
-} // closes pipeline
