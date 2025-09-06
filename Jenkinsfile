@@ -31,7 +31,7 @@ pipeline {
 
         stage("SonarQube Analysis") {
             steps {
-                withSonarQubeEnv('Sonarqubescanner') {
+                withSonarQubeEnv('Sonar-canner') {
                     script {
                         def hasClasses = fileExists("target/classes")
 
