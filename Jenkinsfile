@@ -28,7 +28,7 @@ pipeline {
 
         stage("SonarCloud") {
             steps {
-                withSonarQubeEnv('sonar-scanner') {   // <-- change to the name of your SonarQube server in Jenkins config
+                withSonarQubeEnv('sonarqube-server') {
                     sh """
                         ${SCANNER_HOME}/bin/sonar-scanner-x \
                         -Dsonar.projectKey=Ncodeit \
