@@ -1,58 +1,55 @@
 pipeline {
     agent any
-
     tools {
         maven 'MVN_HOME'
     }
-
     environment {
-        NEXUS_VERSION       = "nexus3"
-        NEXUS_PROTOCOL      = "http"
-        NEXUS_URL           = "54.234.57.212:8081/"
-        NEXUS_REPOSITORY    = "Hiring-app"
+        NEXUS_VERSION = "nexus3"
+        NEXUS_PROTOCOL = "http"
+        NEXUS_URL = "54.234.57.212:8081/"
+        NEXUS_REPOSITORY = "Hiring-app"
         NEXUS_CREDENTIAL_ID = "admin/****** (Nexus-server)"
-        SCANNER_HOME        = tool 'sonar-scanner'
-        SLACK_CHANNEL       = "#jenkins-integration"
+        SCANNER_HOME = tool 'sonar-scanner'
+        // Slack details (already configured in Jenkins → Configure System → Slack)
+        SLACK_CHANNEL = "#jenkins-integration"
     }
-
     stages {
-
-        stage("Clone Code") {
+        stage("clone code") {
             steps {
                 git 'https://github.com/ALEEMUDDIN138/sabear_simplecutomerapp.git'
             }
         }
 
-        stage("Build with Maven") {
+        stage('Build') {
             steps {
                 sh 'mvn -Dmaven.test.failure.ignore=true clean install'
             }
         }
 
-        stage("SonarQube Analysis") {
+        stage("SonarCloud") {
             steps {
-                withSonarQubeEnv('sonarqube-server') {
+                withSonarQubeEnv('SonarQube-server') {
                     sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=Ncodeit \
                         -Dsonar.projectName=Ncodeit \
                         -Dsonar.projectVersion=2.0 \
                         -Dsonar.sources=src \
-                        -Dsonar.java.binaries=build/classes/java/main \
-                        -X
+                        -Dsonar.binaries=target/classes \
+                        -Dsonar.junit.reportsPath=target/surefire-reports \
+                        -Dsonar.jacoco.reportPath=target/jacoco.exec \
+                        -Dsonar.java.binaries=src/com/room/sample '''
                     """
                 }
             }
         }
 
-        stage("Publish to Nexus") {
+        stage("publish to nexus") {
             steps {
                 script {
                     def pom = readMavenPom file: "pom.xml"
                     def filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
-
-                    echo "Artifact: ${filesByGlob[0].name}, Path: ${filesByGlob[0].path}"
-
+                    echo "${filesByGlob[0].name} ${filesByGlob[0].path}"
                     def artifactPath = filesByGlob[0].path
                     def artifactExists = fileExists artifactPath
 
@@ -71,10 +68,10 @@ pipeline {
                             ]
                         )
                     } else {
-                        error "*** File not found: ${artifactPath}"
+                        error "*** File: ${artifactPath}, could not be found"
                     }
                 }
             }
         }
-    }
-}
+    } // closes stages
+} // closes pipeline
