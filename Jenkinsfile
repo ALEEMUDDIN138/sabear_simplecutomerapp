@@ -1,55 +1,75 @@
 pipeline {
     agent any
+
     tools {
         maven 'MVN_HOME'
     }
+
     environment {
-        NEXUS_VERSION = "nexus3"
-        NEXUS_PROTOCOL = "http"
-        NEXUS_URL = "54.234.57.212:8081/"
-        NEXUS_REPOSITORY = "Hiring-app"
+        NEXUS_VERSION       = "nexus3"
+        NEXUS_PROTOCOL      = "http"
+        NEXUS_URL           = "54.234.57.212:8081/"
+        NEXUS_REPOSITORY    = "Hiring-app"
         NEXUS_CREDENTIAL_ID = "admin/****** (Nexus-server)"
-        SCANNER_HOME = tool 'sonar-scanner'
-        // Slack details (already configured in Jenkins → Configure System → Slack)
-        SLACK_CHANNEL = "#jenkins-integration"
+        SCANNER_HOME        = tool 'sonar-scanner'
+        SLACK_CHANNEL       = "#jenkins-integration"
     }
+
     stages {
-        stage("clone code") {
+
+        stage("Clone Code") {
             steps {
                 git 'https://github.com/ALEEMUDDIN138/sabear_simplecutomerapp.git'
             }
         }
 
-        stage('Build') {
+        stage("Build") {
             steps {
                 sh 'mvn -Dmaven.test.failure.ignore=true clean install'
             }
         }
 
-        stage("SonarCloud") {
+        stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('Sonar-scanner') {
-                    sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=Ncodeit \
-                        -Dsonar.projectName=Ncodeit \
-                        -Dsonar.projectVersion=2.0 \
-                        -Dsonar.sources=src \
-                        -Dsonar.binaries=target/classes \
-                        -Dsonar.junit.reportsPath=target/surefire-reports \
-                        -Dsonar.jacoco.reportPath=target/jacoco.exec \
-                        -Dsonar.java.binaries=target/classes \
-                    """
+                    script {
+                        def hasClasses = fileExists("target/classes")
+
+                        if (hasClasses) {
+                            echo "✅ Compiled classes found in target/classes"
+                            sh """
+                                ${SCANNER_HOME}/bin/sonar-scanner \
+                                -Dsonar.projectKey=Ncodeit \
+                                -Dsonar.projectName=Ncodeit \
+                                -Dsonar.projectVersion=2.0 \
+                                -Dsonar.sources=src \
+                                -Dsonar.java.binaries=target/classes \
+                                -X
+                            """
+                        } else {
+                            echo "⚠️ No compiled classes found, running SonarQube without binaries"
+                            sh """
+                                ${SCANNER_HOME}/bin/sonar-scanner \
+                                -Dsonar.projectKey=Ncodeit \
+                                -Dsonar.projectName=Ncodeit \
+                                -Dsonar.projectVersion=2.0 \
+                                -Dsonar.sources=src \
+                                -X
+                            """
+                        }
+                    }
                 }
             }
         }
 
-        stage("publish to nexus") {
+        stage("Publish to Nexus") {
             steps {
                 script {
                     def pom = readMavenPom file: "pom.xml"
                     def filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
-                    echo "${filesByGlob[0].name} ${filesByGlob[0].path}"
+
+                    echo "Artifact: ${filesByGlob[0].name}, Path: ${filesByGlob[0].path}"
+
                     def artifactPath = filesByGlob[0].path
                     def artifactExists = fileExists artifactPath
 
