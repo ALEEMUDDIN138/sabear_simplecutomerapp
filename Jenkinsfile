@@ -32,7 +32,7 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 // make sure Jenkins global SonarQube config ID matches here
-                withSonarQubeEnv('sonarqube_scanner') {
+                withSonarQubeEnv('sonarqube_server') {
                     sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=Ncodeit \
