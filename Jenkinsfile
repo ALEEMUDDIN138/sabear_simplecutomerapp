@@ -30,7 +30,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonar_scanner') {   // <-- change to the name of your SonarQube server in Jenkins config
                     sh """
-                        ${SCANNER_HOME}/opt/sonar_scanner \
+                        ${SCANNER_HOME}/bin/sonar_scanner \
                         -Dsonar.projectKey=Ncodeit \
                         -Dsonar.projectName=Ncodeit \
                         -Dsonar.projectVersion=2.0 \
