@@ -9,7 +9,7 @@ pipeline {
         NEXUS_URL = "54.234.57.212:8081/"
         NEXUS_REPOSITORY = "Hiring-app"
         NEXUS_CREDENTIAL_ID = "admin/****** (Nexus-server)"
-        SCANNER_HOME = tool 'sonarqube'
+        SCANNER_HOME = tool 'sonar_scanner'
         // Slack details (already configured in Jenkins → Configure System → Slack)
         SLACK_CHANNEL = "#jenkins-integration"
     }
@@ -28,9 +28,9 @@ pipeline {
 
         stage("SonarCloud") {
             steps {
-                withSonarQubeEnv('sonarqube') {
+                withSonarQubeEnv('sonar_scanner') {
                     sh '''
-                        $SCANNER_HOME/bin/sonarqube \
+                        $SCANNER_HOME/bin/sonar_scanner \
                         -Dsonar.projectKey=Ncodeit \
                         -Dsonar.projectName=Ncodeit \
                         -Dsonar.projectVersion=2.0 \
