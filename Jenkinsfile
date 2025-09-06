@@ -6,10 +6,10 @@ pipeline {
     environment {
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
-        NEXUS_URL = "54.234.57.212:8081"
+        NEXUS_URL = "54.234.57.212:8081/"
         NEXUS_REPOSITORY = "Hiring-app"
         NEXUS_CREDENTIAL_ID = "admin/****** (Nexus-server)"
-        SCANNER_HOME = tool 'sonar-scanner'
+        SCANNER_HOME = tool 'sonar_scanner'
         // Slack details (already configured in Jenkins → Configure System → Slack)
         SLACK_CHANNEL = "#jenkins-integration"
     }
@@ -19,17 +19,18 @@ pipeline {
                 git 'https://github.com/ALEEMUDDIN138/sabear_simplecutomerapp.git'
             }
         }
-        stage('Build') {
-    steps {
-        sh 'mvn -Dmaven.test.failure.ignore=true clean install'
-    }
-}
 
+        stage('Build') {
+            steps {
+                sh 'mvn -Dmaven.test.failure.ignore=true clean install'
+            }
+        }
 
         stage("SonarCloud") {
             steps {
-                withSonarQubeEnv('sonar-scanner') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner \
+                withSonarQubeEnv('sonar_scanner') {
+                    sh '''
+                        $SCANNER_HOME/bin/sonar_scanner \
                         -Dsonar.projectKey=Ncodeit \
                         -Dsonar.projectName=Ncodeit \
                         -Dsonar.projectVersion=2.0 \
@@ -37,18 +38,21 @@ pipeline {
                         -Dsonar.binaries=target/classes/com/visualpathit/account/controller/ \
                         -Dsonar.junit.reportsPath=target/surefire-reports \
                         -Dsonar.jacoco.reportPath=target/jacoco.exec \
-                        -Dsonar.java.binaries=src/com/room/sample '''
+                        -Dsonar.java.binaries=src/com/room/sample
+                    '''
                 }
             }
         }
+
         stage("publish to nexus") {
             steps {
                 script {
-                    pom = readMavenPom file: "pom.xml"
-                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
+                    def pom = readMavenPom file: "pom.xml"
+                    def filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
                     echo "${filesByGlob[0].name} ${filesByGlob[0].path}"
-                    artifactPath = filesByGlob[0].path
-                    artifactExists = fileExists artifactPath
+                    def artifactPath = filesByGlob[0].path
+                    def artifactExists = fileExists artifactPath
+
                     if (artifactExists) {
                         nexusArtifactUploader(
                             nexusVersion: NEXUS_VERSION,
@@ -69,3 +73,5 @@ pipeline {
                 }
             }
         }
+    } // closes stages
+} // closes pipeline
