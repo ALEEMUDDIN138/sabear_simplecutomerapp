@@ -38,7 +38,7 @@ pipeline {
                         -Dsonar.projectName=Ncodeit \
                         -Dsonar.projectVersion=2.0 \
                         -Dsonar.sources=src \
-                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.java.binaries=build/classes/java/main \
                         -X
                     """
                 }
