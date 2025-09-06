@@ -11,7 +11,7 @@ pipeline {
         NEXUS_URL           = "54.234.57.212:8081/"
         NEXUS_REPOSITORY    = "Hiring-app"
         NEXUS_CREDENTIAL_ID = "admin/****** (Nexus-server)"
-        SCANNER_HOME        = tool 'sonar-scanner'
+        SCANNER_HOME        = tool 'sonar_scanner'
         SLACK_CHANNEL       = "#jenkins-integration"
     }
 
@@ -32,7 +32,7 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 // make sure Jenkins global SonarQube config ID matches here
-                withSonarQubeEnv('sonar-scanner') {
+                withSonarQubeEnv('sonarqube_scanner') {
                     sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=Ncodeit \
