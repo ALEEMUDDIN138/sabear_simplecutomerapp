@@ -31,39 +31,16 @@ pipeline {
 
         stage("SonarQube Analysis") {
             steps {
-                withSonarQubeEnv('Sonar-scanner') {
-                    script {
-                        def hasClasses = fileExists("target/classes")
-
-                        if (hasClasses) {
-                            echo "✅ Compiled classes found in target/classes"
-                            sh """
-                                ${SCANNER_HOME}/bin/sonar-scanner \
-                                -Dsonar.projectKey=Ncodeit \
-                                -Dsonar.projectName=Ncodeit \
-                                -Dsonar.projectVersion=2.0 \
-                                -Dsonar.sources=src \
-                                -Dsonar.java.binaries=target/classes
-                            """
-                        } else {
-                            echo "⚠️ No compiled classes found, running SonarQube without binaries"
-                            sh """
-                                ${SCANNER_HOME}/bin/sonar-scanner \
-                                -Dsonar.projectKey=Ncodeit \
-                                -Dsonar.projectName=Ncodeit \
-                                -Dsonar.projectVersion=2.0 \
-                                -Dsonar.sources=src
-                            """
-                        }
-                    }
-                }
-            }
-        }
-
-        stage("SonarQube Quality Gate") {
-            steps {
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                // make sure Jenkins global SonarQube config ID matches here
+                withSonarQubeEnv('sonar-scanner') {
+                    sh """
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=Ncodeit \
+                        -Dsonar.projectName=Ncodeit \
+                        -Dsonar.projectVersion=2.0 \
+                        -Dsonar.sources=src \
+                        -Dsonar.java.binaries=target/classes
+                    """
                 }
             }
         }
