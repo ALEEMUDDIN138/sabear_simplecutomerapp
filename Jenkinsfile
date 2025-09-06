@@ -38,7 +38,7 @@ pipeline {
                         -Dsonar.binaries=target/classes \
                         -Dsonar.junit.reportsPath=target/surefire-reports \
                         -Dsonar.jacoco.reportPath=target/jacoco.exec \
-                        -Dsonar.java.binaries=src/com/room/sample '''
+                        -Dsonar.java.binaries=target/classes \
                     """
                 }
             }
