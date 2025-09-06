@@ -31,7 +31,7 @@ pipeline {
 
         stage("SonarQube Analysis") {
             steps {
-                withSonarQubeEnv('Sonar-canner') {
+                withSonarQubeEnv('Sonar-scanner') {
                     script {
                         def hasClasses = fileExists("target/classes")
 
@@ -43,8 +43,7 @@ pipeline {
                                 -Dsonar.projectName=Ncodeit \
                                 -Dsonar.projectVersion=2.0 \
                                 -Dsonar.sources=src \
-                                -Dsonar.java.binaries=target/classes \
-                                -X
+                                -Dsonar.java.binaries=target/classes
                             """
                         } else {
                             echo "⚠️ No compiled classes found, running SonarQube without binaries"
@@ -53,11 +52,18 @@ pipeline {
                                 -Dsonar.projectKey=Ncodeit \
                                 -Dsonar.projectName=Ncodeit \
                                 -Dsonar.projectVersion=2.0 \
-                                -Dsonar.sources=src \
-                                -X
+                                -Dsonar.sources=src
                             """
                         }
                     }
+                }
+            }
+        }
+
+        stage("SonarQube Quality Gate") {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -93,5 +99,5 @@ pipeline {
                 }
             }
         }
-    } // closes stages
-} // closes pipeline
+    }
+}
