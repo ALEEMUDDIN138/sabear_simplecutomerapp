@@ -40,6 +40,7 @@ pipeline {
                         -Dsonar.projectVersion=2.0 \
                         -Dsonar.sources=src \
                         -Dsonar.java.binaries=target/classes
+                        -x
                     """
                 }
             }
