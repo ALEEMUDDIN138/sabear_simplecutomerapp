@@ -73,7 +73,7 @@ pipeline {
 
    // stage("Deploy to Tomcat") {
    //     steps {
-  //         withCredentials([usernamePassword(credentialsId: 'deployer/******', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
+  //         withCredentials([usernamePassword(credentialsId: '6032f458-5f14-4354-9500-645db052e2b5', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
   //             script {
   //                 // Find the WAR file built by Maven
   //                 def warFile = sh(script: "ls target/*.war | head -n 1", returnStdout: true).trim()
@@ -85,7 +85,7 @@ pipeline {
   //                          "http://52.207.241.86:8080/manager/text/deploy?path=/${warName}&update=true"
         stage("Deploy to Tomcat") {
     steps {
-        withCredentials([usernamePassword(credentialsId: 'deployer/******', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
+        withCredentials([usernamePassword(credentialsId: '6032f458-5f14-4354-9500-645db052e2b5', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
             script {
                 // Find the WAR file built by Maven
                 def warFile = sh(script: "ls target/*.war | head -n 1", returnStdout: true).trim()
