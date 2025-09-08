@@ -8,7 +8,7 @@ pipeline {
         NEXUS_PROTOCOL = "http"
         NEXUS_URL = "54.234.57.212:8081"
         NEXUS_REPOSITORY = "Hiring-app"
-        NEXUS_CREDENTIAL_ID = "admin/****** (Nexus-server)"
+        NEXUS_CREDENTIAL_ID = "Nexus-server"
         SCANNER_HOME = tool 'sonar_scanner'
         // Slack details (already configured in Jenkins → Configure System → Slack)
         SLACK_CHANNEL = "#jenkins-integration"
