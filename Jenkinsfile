@@ -41,34 +41,36 @@ pipeline {
                 }
             }
         }
-        stage("publish to nexus") {
-            steps {
-                script {
-                    pom = readMavenPom file: "pom.xml"
-                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
-                    echo "${filesByGlob[0].name} ${filesByGlob[0].path}"
-                    artifactPath = filesByGlob[0].path
-                    artifactExists = fileExists artifactPath
-                    if (artifactExists) {
-                        nexusArtifactUploader(
-                            nexusVersion: NEXUS_VERSION,
-                            protocol: NEXUS_PROTOCOL,
-                            nexusUrl: NEXUS_URL,
-                            groupId: pom.groupId,
-                            version: pom.version,
-                            repository: NEXUS_REPOSITORY,
-                            credentialsId: NEXUS_CREDENTIAL_ID,
-                            artifacts: [
-                                [artifactId: pom.artifactId, classifier: '', file: artifactPath, type: pom.packaging],
-                                [artifactId: pom.artifactId, classifier: '', file: "pom.xml", type: "pom"]
-                            ]
-                        )
-                    } else {
-                        error "*** File: ${artifactPath}, could not be found"
-                    }
-                }
+       stage("publish to nexus") {
+    steps {
+        script {
+            def pom = readMavenPom file: "pom.xml"
+            def filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
+            echo "${filesByGlob[0].name} ${filesByGlob[0].path}"
+            def artifactPath = filesByGlob[0].path
+            def artifactExists = fileExists artifactPath
+
+            if (artifactExists) {
+                nexusArtifactUploader(
+                    nexusVersion: NEXUS_VERSION,
+                    protocol: NEXUS_PROTOCOL,
+                    nexusUrl: NEXUS_URL,
+                    groupId: pom.groupId,
+                    version: pom.version,
+                    repository: NEXUS_REPOSITORY,
+                    credentialsId: NEXUS_CREDENTIAL_ID,
+                    artifacts: [
+                        [artifactId: pom.artifactId, classifier: '', file: artifactPath, type: pom.packaging],
+                        [artifactId: pom.artifactId, classifier: '', file: "pom.xml", type: "pom"]
+                    ]
+                )
+            } else {
+                error "*** File: ${artifactPath}, could not be found"
             }
         }
+    }
+}
+
    // stage("Deploy to Tomcat") {
    //     steps {
   //         withCredentials([usernamePassword(credentialsId: 'deployer/******', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
