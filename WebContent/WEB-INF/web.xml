@@ -4,13 +4,12 @@
 
   <display-name>Simple Customer Application</display-name>
 
-  <welcome-file-list>
-
+ <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>Welcome.jsp</welcome-file>
     <welcome-file>Customer.jsp</welcome-file>
-
-  </welcome-file-list>
-
-
+</welcome-file-list>
+  
   <servlet>
 
     <servlet-name>customer</servlet-name>
